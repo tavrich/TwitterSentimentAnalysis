@@ -22,15 +22,22 @@ tweets = searchTwitter('Impeachment', n = 3500)
 tweets.df <- twListToDF(tweets)
 #delete all columns except for the first one
 tweets.df = tweets.df[,1]
+#delete ampersands
 tweets.df = gsub("&amp", "", tweets.df)
 tweets.df = gsub("&amp", "", tweets.df)
+#remove RT and via in the case of retweets
 tweets.df = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", tweets.df)
+#remove @ signs
 tweets.df = gsub("@\\w+", "", tweets.df)
+#remove puncuation
 tweets.df = gsub("[[:punct:]]", "", tweets.df)
+#remove numbers
 tweets.df = gsub("[[:digit:]]", "", tweets.df)
+#remove links
 tweets.df = gsub("http\\w+", "", tweets.df)
 tweets.df = gsub("[ \t]{2,}", "", tweets.df)
 tweets.df = gsub("^\\s+|\\s+$", "", tweets.df)
+tweets.df = gsub("\\Trump\\b", "",tweets.df)
 
 sentiment <- get_nrc_sentiment(tweets.df)
 sentBar = colSums(sentiment)
@@ -68,16 +75,16 @@ corpus = tm_map(tweetCorpus, stemDocument)
 
 # create document term matrix
 
-tdm = TermDocumentMatrix(corpus)
+tdmatrix = TermDocumentMatrix(corpus)
 
 # convert as matrix
-tdm = as.matrix(tdm)
-tdmnew <- tdm[nchar(rownames(tdm)) < 11,]
+tdmatrix = as.matrix(tdmatrix)
+tdmatrixnew <- tdmatrix[nchar(rownames(tdmatrix)) < 11,]
 
 # column name binding
-colnames(tdm) = c('anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust')
-colnames(tdmnew) <- colnames(tdm)
-comparison.cloud(tdmnew, random.order=FALSE,
+colnames(tdmatrix) = c('anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust')
+colnames(tdmatrixnew) <- colnames(tdmatrix)
+comparison.cloud(tdmatrixnew, random.order=FALSE,
                  colors = c("#00B2FF", "red", "#FF0099", "#6600CC", "green", "orange", "blue", "brown"),
                  title.size=1, max.words=250, scale=c(2.5, 0.4),rot.per=0.4)
 
